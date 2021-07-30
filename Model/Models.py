@@ -1,6 +1,6 @@
 global ROOMNUM
 
-class USERS:
+class USER:
     __name = ''
     __pw = ''
 
@@ -12,3 +12,7 @@ class ROOM:
 
     def __init__(self, count):
         number = count
+
+class Camera:
+    def __init__(self):
+        print("This is Camera")

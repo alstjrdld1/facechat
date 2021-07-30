@@ -1,0 +1,27 @@
+  '''
+        self.topWidget = QWidget()
+        self.topWidget.resize(QSize(600, 300))
+        self.topWidget.setStyleSheet("background-color: white;")
+        
+        # tab bar including options 
+        self.tabBar = QLabel(self) 
+        self.tabBar.move(0,0)
+        self.tabBar.resize(600, 30)
+        self.tabBar.setStyleSheet("background-color: white;")
+      
+        
+        self.backBtn = QPushButton(self)
+        self.backBtn.resize(QSize(26, 26))
+        self.backBtn.move(2, 2)
+        
+        self.backBtn.setIcon(QIcon('C:/Users/minstone/NewbieProject/View/Images/backbutton.png'))
+        self.backBtn.setIconSize(QSize(20, 20))
+        
+        self.backBtn.clicked.connect(self.backButton) 
+        self.backBtn.setStyleSheet("background-color: white;")
+
+        self.topWidgetLayout = QHBoxLayout()
+        self.topWidgetLayout.addWidget(self.backBtn)
+
+        self.topWidget.setLayout(self.topWidgetLayout)
+        '''
