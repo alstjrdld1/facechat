@@ -21,7 +21,7 @@ class CWidget(QWidget):
  
     def initUI(self):
         self.setWindowTitle('클라이언트')
-         
+        
         # 클라이언트 설정 부분
         ipbox = QHBoxLayout()
  
