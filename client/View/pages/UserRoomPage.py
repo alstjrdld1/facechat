@@ -7,6 +7,8 @@ from myconfig import *
 class UserRoomPage(Page):
     def __init__(self):
         from Control.ViewController import ViewController
+        from Control.Controller import Controller
+        self.controller = Controller()
         self.vc = ViewController()
         super().__init__()
         self.setupUI()
@@ -38,4 +40,5 @@ class UserRoomPage(Page):
         self.vc.instance().changePage(MY_PAGE)
     
     def clickLogout(self):
+        self.controller.instance().currentUser = None
         self.vc.instance().changePage(LOGOUT)

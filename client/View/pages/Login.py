@@ -1,3 +1,4 @@
+from View.dialogs.AlertBox import AlertBox
 from PyQt5.QtWidgets import * 
 from PyQt5.QtGui import *
 from win32api import GetSystemMetrics
@@ -7,18 +8,43 @@ from Control.SingleTon import *
 
 class LoginPage(QWidget):
     def __init__(self):
+        from Control.ViewController import ViewController
+        self.vc = ViewController()
         super().__init__()
-
+        self.setupUI()
+        
+    def setupUI(self):
         self.myLayout = QVBoxLayout()
 
         self.loginBtn = QPushButton()
         self.loginBtn.setText('LOGIN')
+        self.loginBtn.clicked.connect(self.loginButtonClick)
+
+        self.backBtn = QPushButton()
+        self.backBtn.setText("GO BACK")
+        self.backBtn.clicked.connect(self.backBtnClick)
         
         self.myLayout.addWidget(self.loginBtn)
+        self.myLayout.addWidget(self.backBtn)
         self.setLayout(self.myLayout)
+    
+    def loginButtonClick(self):
+        msg = LoginDialog()
+        msg.exec_() 
+
+    def backBtnClick(self):
+        self.vc.instance().goBack()
+
 
 class LoginDialog(CustomDialog):
+    loginState = False
+
     def __init__(self):
+        from Control.Controller import Controller
+        from Control.ViewController import ViewController
+        self.controller = Controller()
+        self.vc = ViewController()
+
         super().__init__()
         self.setupUI()
 
@@ -46,9 +72,13 @@ class LoginDialog(CustomDialog):
         self.setLayout(layout)
 
     def pushButtonClicked(self):
-        self.id = self.lineEdit1.text()
-        self.password = self.lineEdit2.text()
-        self.close()
+        self.loginState = self.controller.instance().textLogin(self.lineEdit1.text(), self.lineEdit2.text())
+        if(self.loginState):
+            self.vc.instance().changePage(USER_ROOM)
+            self.close()
+        else:
+            msg = AlertBox("LOGIN ERROR", "ID OR PASSWORD IS WRONG")
+            msg.exec_()
 
 class FaceLoginDialog(CustomDialog):
     loginState = True 

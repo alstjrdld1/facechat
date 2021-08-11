@@ -14,7 +14,7 @@ class ClientSocket:
         self.recv = Signal()        
         self.recv.recv_signal.connect(self.parent.updateMsg)
         self.disconn = Signal()        
-        self.disconn.disconn_signal.connect(self.parent.updateDisconnect)
+        self.disconn.disconn_signal.connect(self.parent.updateDisconnect) 
  
         self.bConnect = False
          

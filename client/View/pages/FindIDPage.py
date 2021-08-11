@@ -1,4 +1,5 @@
 
+from Control.Controller import Controller
 from View.dialogs.AlertBox import AlertBox
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton
 from View.pages.Page import Page
@@ -6,6 +7,7 @@ from View.pages.Page import Page
 
 class FindIDPage(Page):
     def __init__(self):
+        self.controller = Controller()
         super().__init__()
         self.setupUI()
     
@@ -36,11 +38,13 @@ class FindIDPage(Page):
     def findID(self):
         
         # send Informations to server with controller 
-        
-        if(True):
-            msg = AlertBox("FIND ID", "YOUR ID IS \n " + "minstone")
+        id = self.controller.instance().getId(self.phone.text(), self.name.text())
+
+        if(id):
+            msg = AlertBox("FIND ID", "YOUR ID IS \n " + id)
             msg.exec_()
         else:
             msg = AlertBox("FIND ID", "SOME PROBLEM IN HERE")
+            msg.exec_()
         
         self.vc.instance().goBack()

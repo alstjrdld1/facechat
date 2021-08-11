@@ -4,40 +4,51 @@ from View.pages.Page import *
 
 class MyPage(Page):
     def __init__(self):
+        from Control.Controller import Controller 
+        self.controller = Controller()
         super().__init__()
         self.setupUI()
 
     def setupUI(self):
+        me = self.controller.instance().getCurrentUser()
         self.pageName.setText("MY PAGE")
         self.pageLayout.addWidget(self.pageName, 0, 1)
 
         self.nameLabel = QLabel("NAME : ")
         self.name = QLineEdit()
-        self.name.setPlaceholderText("MINSTONE")
+        self.name.setText(me.getName())
 
         self.phoneLabel = QLabel("PHONE NUMBER : ")
-        self.phone = QLineEdit()
-        self.phone.setPlaceholderText("010-1111-1111")
+        self.phone = QLabel()
+        self.phone.setText(me.getPhNum())
 
         self.emailLabel = QLabel("EMAIL : ")
         self.email = QLineEdit()
-        self.email.setPlaceholderText("Aab@naver.com")
+        self.email.setText(me.getEmail())
 
 
         self.nickNameLabel = QLabel("NICK NAME : ")
         self.nickName = QLineEdit()
-        self.nickName.setPlaceholderText("MINSTONE")
+        self.nickName.setText(me.getNickName())
 
         self.idLabel = QLabel("ID : ")
-        self.id = QLineEdit()
-        self.id.setPlaceholderText("KMS1998")
+        self.id = QLabel()
+        self.id.setText(me.getId())
 
         self.passwordLabel = QLabel("PASSWORD : ")
         self.password = QLineEdit()
-        self.password.setPlaceholderText("1111111")
+        self.password.setText(me.getPw())
+
+        
+        self.greetingLabel = QLabel("GREETING : ")
+        self.greeting = QLineEdit()
+        self.greeting.setText(me.getGreeting())
 
         self.changeInfoButton = QPushButton("CHANGE")
         self.changeInfoButton.clicked.connect(self.clickChangeInfobtn)
+
+        self.backButton = QPushButton("BACK")
+        self.backButton.clicked.connect(self.backBtn)
         
         self.pageLayout.addWidget(self.pageName, 0, 1)
         self.pageLayout.addWidget(self.nameLabel, 1, 0)
@@ -52,19 +63,16 @@ class MyPage(Page):
         self.pageLayout.addWidget(self.id, 5, 1)
         self.pageLayout.addWidget(self.passwordLabel, 6, 0)
         self.pageLayout.addWidget(self.password, 6, 1)
-        self.pageLayout.addWidget(self.changeInfoButton, 7, 1)
+        self.pageLayout.addWidget(self.greetingLabel, 7, 0)
+        self.pageLayout.addWidget(self.greeting, 7, 1)
+        self.pageLayout.addWidget(self.backButton, 8, 0)
+        self.pageLayout.addWidget(self.changeInfoButton, 8, 1)
 
         self.setLayout(self.pageLayout)
 
     
-    def clickChangeInfobtn(self):
-        # Send Changed Information to server 
-
-        # IF SUCCESS ALERT SUCCESS MESSAGE 
-        msg = AlertBox("CHAGNE INFO", "CHANGED!")
-        msg.exec_()
-
-        # ELSE SHOW FAILURE ALERT 
-
-        # GO TO USER ROOM
+    def clickChangeInfobtn(self):   
+        self.controller.instance().changeUserInfo(self.name.text(), self.phone.text(), self.email.text(), self.nickName.text(), self.id.text(), self.password.text(), self.greeting.text())
+    
+    def backBtn(self):
         self.vc.instance().goBack()

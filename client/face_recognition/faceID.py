@@ -43,7 +43,7 @@ class FaceID:
             
         return cropped_face
     
-    def register(self):
+    def register(self, Id):
 
         cap = cv2.VideoCapture(0)
         count = 0
@@ -55,7 +55,7 @@ class FaceID:
                 face = cv2.resize(self.face_extractor(frame),(200,200))
                 face = cv2.cvtColor(face, cv2.COLOR_BGR2GRAY)
 
-                file_name_path = 'Face_recognition/faces/user'+str(count)+'.jpg'
+                file_name_path = 'Face_recognition/faces/'+Id+str(count)+'.jpg'
                 cv2.imwrite(file_name_path,face)
 
                 cv2.putText(frame,str(count),(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(0,255,0),2)
@@ -133,8 +133,9 @@ class FaceID:
             
             if cv2.waitKey(1)==13:
                 break
-            
+        
             
         cap.release()
         cv2.destroyAllWindows()
+
         return loginState
