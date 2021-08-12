@@ -1,0 +1,36 @@
+[33mcommit 53729008651eada2009cca9537933604ea1fa58d[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m)[m
+Author: alstjrdld1 <minseok_kim@khu.ac.kr>
+Date:   Wed Aug 11 18:13:19 2021 +0900
+
+    20210811
+
+[33mcommit 0a386dd477019fe7ea264999bfa7ce350ad649ba[m[33m ([m[1;31morigin/main[m[33m)[m
+Merge: 6ef6626 09805fe
+Author: alstjrdld1 <minseok_kim@khu.ac.kr>
+Date:   Tue Aug 3 19:01:02 2021 +0900
+
+    Merge branch 'main' of https://github.com/alstjrdld1/facechat
+
+[33mcommit 6ef66267d5e91c5a5f77d8df84fb9708535705e0[m[33m ([m[1;31morigin/master[m[33m, [m[1;32morigin[m[33m, [m[1;32mmaster[m[33m)[m
+Author: alstjrdld1 <minseok_kim@khu.ac.kr>
+Date:   Tue Aug 3 18:51:22 2021 +0900
+
+    20210803
+
+[33mcommit c720565543eaf96242dbf158b3915d98c7d52907[m
+Author: alstjrdld1 <minseok_kim@khu.ac.kr>
+Date:   Fri Jul 30 21:09:42 2021 +0900
+
+    20210730
+
+[33mcommit 0af6a2c5344e17c67c1f692d6cca996724cf6e87[m
+Author: alstjrdld1 <minseok_kim@khu.ac.kr>
+Date:   Tue Jul 20 21:33:12 2021 +0900
+
+    First commit
+
+[33mcommit 09805fea0d2b05c29d33827a486b44aaf20acf39[m
+Author: minstone_98 <50548788+alstjrdld1@users.noreply.github.com>
+Date:   Tue Jul 20 21:30:52 2021 +0900
+
+    Initial commit

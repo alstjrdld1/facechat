@@ -65,7 +65,7 @@ class ViewController(SingletonInstane):
             err = AlertBox("Error", "Call Wrong page")
             err.exec_()
 
-        print(self.pageHistory)
+        # print(self.pageHistory)
     
     def goBack(self):
         prevPage = self.pageHistory.pop()

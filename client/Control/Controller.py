@@ -34,13 +34,15 @@ class Controller(SingletonInstane):
             if loginSuccess: 
                 # face 디렉토리에서 이름 파싱해서 가져오기 
                 path = 'client/face_recognition/faces/'
-
+                file_list = listdir(path)
+                self.currentUser = self.getUser(file_list[0][:file_list[0].find('_')])
                 break
             else : 
                 loginSuccess = FaceID().login()
         return loginSuccess
     
     def faceRegister(self):
+        print(self.currentUser.getId())
         FaceID().register(self.currentUser.getId())
 
     def getId(self, PhNum, Name):
@@ -87,9 +89,9 @@ class Controller(SingletonInstane):
         return False
     
     def getUser(self, id):
-        user = self.dbConn.instance().loadUser_id(id)
-        if len(user) != 0 : 
-            return user
+        result = self.dbConn.instance().loadUser_id(id)
+        if len(result) != 0 : 
+            return User(result[0],result[1],result[2],result[3],result[4],result[5],result[6])
         else:
             return None 
     

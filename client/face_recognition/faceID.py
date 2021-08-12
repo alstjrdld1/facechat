@@ -1,5 +1,7 @@
+from View.dialogs.AlertBox import AlertBox
 from os import listdir
 from os.path import isfile, join
+import os 
 
 import cv2
 import numpy as np
@@ -12,6 +14,14 @@ class FaceID:
         self.face_classifier = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
         self.data_path = 'client/face_recognition/faces/'
         self.model = cv2.face.LBPHFaceRecognizer_create()
+
+    def removeAllFile(self, filePath):
+        if os.path.exists(filePath):
+            for file in os.scandir(filePath):
+                os.remove(file.path)
+            return 'Remove All File'
+        else:
+            return 'Directory Not Found'
 
     def train(self):
         
@@ -44,7 +54,7 @@ class FaceID:
         return cropped_face
     
     def register(self, Id):
-
+        print(self.removeAllFile(self.data_path))
         cap = cv2.VideoCapture(0)
         count = 0
 
@@ -55,7 +65,7 @@ class FaceID:
                 face = cv2.resize(self.face_extractor(frame),(200,200))
                 face = cv2.cvtColor(face, cv2.COLOR_BGR2GRAY)
 
-                file_name_path = 'Face_recognition/faces/'+Id+str(count)+'.jpg'
+                file_name_path = self.data_path + Id +"_"+str(count)+'.jpg'
                 cv2.imwrite(file_name_path,face)
 
                 cv2.putText(frame,str(count),(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(0,255,0),2)
@@ -73,6 +83,8 @@ class FaceID:
         cv2.destroyAllWindows()
         print('Colleting Samples Complete!!!')
 
+        self.train()
+
         
     def face_detector(self, img, size = 0.5):
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -89,8 +101,12 @@ class FaceID:
         return img,roi
 
     def login(self):
-        self.train()
         loginState = False
+
+        try:
+            self.train()
+        except:
+            return loginState
         count = 0
         cap = cv2.VideoCapture(0)
         print("login method called ")
