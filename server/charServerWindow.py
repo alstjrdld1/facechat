@@ -137,7 +137,7 @@ class CWidget(QWidget):
         sendmsg = self.sendmsg.text()
         self.updateMsg(sendmsg)
         print(sendmsg)
-        self.s.send(sendmsg)
+        self.s.send(sendmsg, 1)
         self.sendmsg.clear()
  
     def clearMsg(self):

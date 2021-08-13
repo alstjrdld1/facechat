@@ -1,4 +1,4 @@
-from View.dialogs.AlertBox import AlertBox
+from PyQt5.QtCore import *
 from View.mydocks.Dock import Dock
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, QTextEdit, QVBoxLayout, QWidget
 import View.mydocks.client as client
@@ -6,7 +6,9 @@ import View.mydocks.client as client
 from myconfig import *
 
 class TextChatDock(Dock):
+    
     def __init__(self):
+        
         super().__init__()
         self.c = client.ClientSocket(self)
 
@@ -22,7 +24,7 @@ class TextChatDock(Dock):
 
     def setupUI(self):
         self.setWindowTitle("Text chat dock")
-
+        self.setFixedSize(QSize(300, 700))
         self.widgetContent = QWidget()
 
         widgetLayout = QVBoxLayout()
@@ -47,13 +49,19 @@ class TextChatDock(Dock):
  
     def updateMsg(self, msg):
         self.recvmsg.addItem(QListWidgetItem(msg))
- 
+
     def updateDisconnect(self):
         pass 
         # self.btn.setText('접속')
  
     def sendMsg(self):
-        sendmsg = self.textMsg.toPlainText()       
+        sendmsg = self.textMsg.toPlainText()    
+
+        item = QListWidgetItem()
+        item.setText(sendmsg)
+        item.setTextAlignment(Qt.AlignRight)
+        self.recvmsg.addItem(item)
+
         self.c.send(sendmsg)        
         self.textMsg.clear()
  

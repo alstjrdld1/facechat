@@ -30,6 +30,7 @@ WINDOW_ICON = 'C:/Users/minstone/NewbieProject/client/View/Images/flower.JPG'
 BACK_BUTTON_ICON = 'C:/Users/minstone/NewbieProject/client/View/Images/backbutton.png'
 ADD_ICON = 'C:/Users/minstone/NewbieProject/client/View/Images/add.png'
 SEARCH_ICON = 'C:/Users/minstone/NewbieProject/client/View/Images/search.png'
+USER_ICON = 'C:/Users/minstone/NewbieProject/client/View/Images/user.png'
 
 ###############################################################
 # DESIGN

@@ -51,7 +51,8 @@ class ServerSocket(QObject):
             except Exception as e:
                 print('Accept() Error : ', e)
                 break
-            else:                
+            else:            
+                print(client)    
                 self.clients.append(client)
                 self.ip.append(addr)                
                 self.update_signal.emit(addr, True)                
@@ -72,17 +73,22 @@ class ServerSocket(QObject):
             else:                
                 msg = str(recv, encoding='utf-8')
                 if msg:
-                    self.send(msg)
+                    self.send(msg, addr)
                     self.recv_signal.emit(msg)
                     print('[RECV]:', addr, msg)
  
          
         self.removeClient(addr, client)
  
-    def send(self, msg):
+    def send(self, msg, senderAddr):
         try:
-            for c in self.clients:
-                c.send(msg.encode())
+            if senderAddr == 1:
+                for c in self.clients:
+                    c.send(msg.encode())    
+            else:
+                for c in self.clients:
+                    if(c.raddr != senderAddr):
+                        c.send(msg.encode())
         except Exception as e:
             print('Send() Error : ', e)
  
