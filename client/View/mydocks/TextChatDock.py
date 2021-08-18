@@ -35,6 +35,7 @@ class TextChatDock(Dock):
 
         self.sendBtn = QPushButton("SEND")
         self.sendBtn.clicked.connect(self.sendMsg)
+        self.sendBtn.setFixedHeight(50)
 
         sendChatLayout.addWidget(self.textMsg)
         sendChatLayout.addWidget(self.sendBtn)

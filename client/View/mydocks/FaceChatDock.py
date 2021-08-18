@@ -1,4 +1,5 @@
-import socket
+from myconfig import *
+from View.mydocks.faceClient import FaceClientSocket
 from threading import *
 
 import cv2
@@ -10,10 +11,9 @@ from View.mydocks.Dock import Dock
 
 
 class SendVideoThread(QThread):
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     change_pixmap_signal = pyqtSignal(np.ndarray)
-
+    
     def __init__(self):
         super().__init__()
         self._run_flag = True
@@ -25,10 +25,8 @@ class SendVideoThread(QThread):
             ret, cv_img = cap.read()
             if ret : 
                 blurred = self.faceBlur(cv_img)
-                video = blurred.flatten().tostring()
-
                 self.change_pixmap_signal.emit(blurred)
-        
+
         cap.release()
     
     def stop(self):
@@ -44,36 +42,28 @@ class SendVideoThread(QThread):
         frame = np.where(mask_3d == (255, 255, 255), img, blurred_frame)
 
         return frame
-    
 
-class ReceiveVideoThread(QThread):
-    change_pixmap_signal = pyqtSignal(np.ndarray)
-
-    def __init__(self):
-        super().__init__()
-        self._run_flag = True
-
-    def run(self):
-        
-        cap = cv2.VideoCapture(0)
-        while self._run_flag:
-            ret, cv_img = cap.read()
-            if ret : 
-                self.change_pixmap_signal.emit(cv_img)
-        
-        cap.release()
-    
-    def stop(self):
-        self._run_flag = False
-        self.wait()
 
 class FaceChatDock(Dock):
     otherUser = False
+
     def __init__(self):
         from Control.Controller import Controller
-        self.controller = Controller
+        self.controller = Controller()
+
+        self.c = FaceClientSocket(self)
+
+        if(self.c.connectServer(SERVER_IP, int(FACE_CHAT_PORT))):
+            print("FACE CHAT SERVER CONNECTED")
+        else:
+            print("FACE CHAT SERVER CONNECT FAIL")
+
         super().__init__()
         self.setupUI()
+
+    def __del__(self):
+        self.thread.stop()
+        self.c.stop()
 
     def setupUI(self):
         self.setWindowTitle("Face chat dock")
@@ -116,25 +106,21 @@ class FaceChatDock(Dock):
         self.setWidget(widget)
 
         ### About Thread 
-        self.thread1 = SendVideoThread()
-        self.moveToThread(self.thread1)
-        self.thread1.change_pixmap_signal.connect(self.update_image)
-        self.thread1.start()
-
-        # self.thread2 = ReceiveVideoThread()
-        # self.moveToThread(self.thread2)
-        # self.thread2.change_pixmap_signal.connect(self.update_other_image)
-        # self.thread2.start()
-        
+        self.thread = SendVideoThread()
+        self.thread.change_pixmap_signal.connect(self.update_image)
+        self.thread.start()
 
     def closeEvent(self, event):
         self.thread.stop()
+        self.c.stop()
         event.accept()
     
     @pyqtSlot(np.ndarray)
     def update_image(self, cv_img):
         qt_img = self.convert_cv_qt(cv_img)
         self.my_image_label.setPixmap(qt_img)
+        self.sendingThread = Thread(target=self.c.send, args=(cv_img, ))
+        self.sendingThread.start()
 
     @pyqtSlot(np.ndarray)
     def update_other_image(self, cv_img):
