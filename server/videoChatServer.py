@@ -67,8 +67,10 @@ class VideoServerSocket:
                 break
             else:
                 # print("DATA LEN : ", len(data))
+                
                 for c in self.clients:
-                    c.sendall(data)
+                    if(c.getpeername() != client.getpeername()):
+                        c.sendall(data)
                     # print("SEND SUCCESS ")
 
         self.removeClient(addr, client)

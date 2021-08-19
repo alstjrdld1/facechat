@@ -123,7 +123,7 @@ class FaceChatDock(Dock):
     def update_image(self, cv_img):
         qt_img = self.convert_cv_qt(cv_img)
         self.my_image_label.setPixmap(qt_img)
-        print(cv_img.shape)
+        # print(cv_img.shape)
         self.sendingThread = Thread(target=self.c.send, args=(cv_img, ))
         self.sendingThread.start()
 
