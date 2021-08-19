@@ -6,7 +6,7 @@ class DatabaseController(SingletonInstane):
     cur = None 
 
     def __init__(self):
-        self.conn = pymysql.connect(host='localhost', user='root', passwd='1124ms', 
+        self.conn = pymysql.connect(host='163.180.116.47', user='minstone', passwd='1124MSqueen', 
                                     db='newbie', charset='utf8')
         self.cur = self.conn.cursor()
 

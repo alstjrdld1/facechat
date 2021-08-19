@@ -1,3 +1,4 @@
+import pickle
 from myconfig import *
 from View.mydocks.faceClient import FaceClientSocket
 from threading import *
@@ -110,6 +111,9 @@ class FaceChatDock(Dock):
         self.thread.change_pixmap_signal.connect(self.update_image)
         self.thread.start()
 
+        self.c.recv.recv_signal.connect(self.update_other_image)
+
+
     def closeEvent(self, event):
         self.thread.stop()
         self.c.stop()
@@ -119,6 +123,7 @@ class FaceChatDock(Dock):
     def update_image(self, cv_img):
         qt_img = self.convert_cv_qt(cv_img)
         self.my_image_label.setPixmap(qt_img)
+        print(cv_img.shape)
         self.sendingThread = Thread(target=self.c.send, args=(cv_img, ))
         self.sendingThread.start()
 

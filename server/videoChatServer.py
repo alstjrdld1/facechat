@@ -2,7 +2,8 @@ from ServerConfig import *
 from threading import Thread
 from socket import * 
 
-import pickle
+import numpy as np
+import time
 
 class VideoServerSocket:
  
@@ -52,7 +53,6 @@ class VideoServerSocket:
                 t = Thread(target=self.receive, args=(addr, client))
                 self.threads.append(t)
                 t.start()
-                self.sendAddress(addr)
                  
         self.removeAllClients()
         self.server.close()
@@ -60,47 +60,19 @@ class VideoServerSocket:
     def receive(self, addr, client):
         while True:            
             try:
-                recv = client.recv(1024)                
+                data = client.recv(921600) 
+
             except Exception as e:
                 print('Recv() Error :', e)                
                 break
             else:
+                # print("DATA LEN : ", len(data))
                 for c in self.clients:
-                    if(c.getpeername() == client.getpeername()):
-                        c.send(recv)
-                        
-               
- 
-         
+                    c.sendall(data)
+                    # print("SEND SUCCESS ")
+
         self.removeClient(addr, client)
-    
-    def sendAddress(self, senderAddr):
-        try:
-            for c in self.clients:
-                print(c.getsockname())
-                print(c.getpeername())
-                print(senderAddr)
-                c.send(pickle.dumps(senderAddr))
 
-                #if(c.getpeername() == senderAddr):
-                #    c.send(pickle.dumps(senderAddr))
-                #    print("Send to :", senderAddr)
-                
-        except Exception as e:
-            print("Send Address() Error : ", e) 
-
-    def send(self, msg, senderAddr):
-        try:
-            if senderAddr == 1:
-                for c in self.clients:
-                    c.send(msg.encode())    
-            else:
-                for c in self.clients:
-                    if(c.raddr != senderAddr):
-                        c.send(msg.encode())
-        except Exception as e:
-            print('Send() Error : ', e)
- 
     def removeClient(self, addr, client):
         # find closed client index
         idx = -1
