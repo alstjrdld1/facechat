@@ -124,8 +124,9 @@ class FaceChatDock(Dock):
         qt_img = self.convert_cv_qt(cv_img)
         self.my_image_label.setPixmap(qt_img)
         # print(cv_img.shape)
-        self.sendingThread = Thread(target=self.c.send, args=(cv_img, ))
-        self.sendingThread.start()
+        sendingThread = Thread(target=self.c.send, args=(cv_img, ))
+        sendingThread.start()
+        del(sendingThread)
 
     @pyqtSlot(np.ndarray)
     def update_other_image(self, cv_img):

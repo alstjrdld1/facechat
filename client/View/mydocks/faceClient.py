@@ -28,7 +28,7 @@ class FaceClientSocket:
  
         try:
             self.client.connect( (ip, port) )
-        except Exception as e:
+        except Exception as e: 
             print('Connect Error : ', e)
             return False
         else:
@@ -50,15 +50,26 @@ class FaceClientSocket:
         while self.bConnect:            
             try:
                 data = client.recv(921600)                
+                #print("RECEIVED DATA TYPE : ", type(data))
+                frame = ""
+                if(len(data) == 921600):
+                    frame = np.fromstring(data, dtype=np.uint8)
+
+                    frame = frame.reshape(480, 640, 3)
+                    self.recv.recv_signal.emit(frame)
+                else:
+                    print("FAIL")
+                    while len(frame) < 9216000 : 
+                        frame += data
+                        data = client.recv(921600)
+                    frame = frame[:921600]
+                    frame = np.fromstring(frame, type=np.uint8)
+
+                    self.recv.recv_signal.emit(frame)
 
             except Exception as e:
                 print('Recv() Error :', e)                 
-                break
-            else:
-                #print("RECEIVED DATA TYPE : ", type(data))
-                frame = np.fromstring(data, dtype=np.uint8)
-                frame = frame.reshape(480, 640, 3)
-                self.recv.recv_signal.emit(frame)
+                break 
 
         self.stop()
  

@@ -87,8 +87,8 @@ class ServerSocket(QObject):
                     c.send(msg.encode())    
             else:
                 for c in self.clients:
-                    if(c.raddr != senderAddr):
-                        c.send(msg.encode())
+                    if(c.getpeername() != senderAddr):
+                        c.sendall(msg.encode())
         except Exception as e:
             print('Send() Error : ', e)
  
