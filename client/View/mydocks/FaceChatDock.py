@@ -46,7 +46,6 @@ class SendVideoThread(QThread):
 
 
 class FaceChatDock(Dock):
-    otherUser = False
 
     def __init__(self):
         from Control.Controller import Controller
@@ -86,11 +85,8 @@ class FaceChatDock(Dock):
         name1 = QLabel(self.controller.instance().getCurrentUser().getNickName())
         name2 = QLabel()
         
-        if self.otherUser:
-            name2.setText("other user")
-            
-        else :
-            name2.setText("NONE")
+      
+        name2.setText("NONE")
         name1.setAlignment(Qt.AlignCenter)
         name2.setAlignment(Qt.AlignCenter)
 
@@ -124,9 +120,9 @@ class FaceChatDock(Dock):
         qt_img = self.convert_cv_qt(cv_img)
         self.my_image_label.setPixmap(qt_img)
         # print(cv_img.shape)
+        # self.c.send(cv_img) 
         sendingThread = Thread(target=self.c.send, args=(cv_img, ))
-        sendingThread.start()
-        del(sendingThread)
+        sendingThread.start() 
 
     @pyqtSlot(np.ndarray)
     def update_other_image(self, cv_img):

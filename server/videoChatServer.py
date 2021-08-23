@@ -4,6 +4,8 @@ from socket import *
 
 import numpy as np
 import time
+import pickle 
+import struct
 
 class VideoServerSocket:
  
@@ -57,23 +59,89 @@ class VideoServerSocket:
         self.removeAllClients()
         self.server.close()
  
-    def receive(self, addr, client):
-        while True:            
-            try:
-                data = client.recv(921600) 
+    # def receive(self, addr, client):
+    #     while True:            
+    #         try:
+    #             data = client.recv(921600) 
 
-            except Exception as e:
-                print('Recv() Error :', e)                
+    #         except Exception as e:
+    #             print('Recv() Error :', e)                
+    #             break
+    #         else:
+    #             # print("DATA LEN : ", len(data))
+                
+    #             for c in self.clients:
+    #                 if(c.getpeername() != client.getpeername()):
+    #                     c.sendall(data)
+    #                 # print("SEND SUCCESS ")
+
+    #     self.removeClient(addr, client)
+
+    def receive(self, addr, client):
+        data = b""
+        metadata_size = struct.calcsize("Q")
+
+        while True:
+            ### receive meta data 
+            try : 
+                while len(data) < metadata_size : 
+                    # packet = client.recv(4 * 1024) 
+                    packet = client.recv(921600)
+                    if not packet: break
+                    data += packet
+                packed_msg_size = data[:metadata_size]
+                data = data[metadata_size:]
+                msg_size = struct.unpack("Q", packed_msg_size)[0]
+
+            except Exception as e :
+                print("Error on receive first while 1 : ", e)
                 break
-            else:
-                # print("DATA LEN : ", len(data))
+
+            ### make frame_data
+            try : 
+                while len(data) < msg_size : 
+                    try :
+                        data += client.recv(4 * 1024) 
+                    except Exception as e :
+                        print("data receive error : ", e)
+                    # data += client.recv(921600)
+
+                    frame_data = data[:msg_size]
+                    data = data[msg_size:]
+
+                    try : 
+
+                        frame = pickle.loads(frame_data)
+                    except Exception as e :
+                        print("pickle load error : ", e)
+                        
+                    
+            except Exception as e :
+                print("Error on frame : ", e) 
+                break
+            
+            ### send frame
+            try :
+                serialized_frame  = self.serialize(frame)
                 
                 for c in self.clients:
-                    if(c.getpeername() != client.getpeername()):
-                        c.sendall(data)
-                    # print("SEND SUCCESS ")
+                    if(c.getpeername() == client.getpeername()):
+                        c.sendall(serialized_frame)
 
-        self.removeClient(addr, client)
+            except Exception as e : 
+                print("Serialize error and sending error : ", e)
+                break
+
+    def serialize(self, msg):
+        try: 
+            img_serialize = pickle.dumps(msg)
+            message = struct.pack("Q", len(img_serialize)) + img_serialize 
+
+        except Exception as e : 
+            print("Send() Error : ", e)
+        
+        else:
+            return message
 
     def removeClient(self, addr, client):
         # find closed client index
