@@ -1,4 +1,5 @@
 import pickle
+import time
 from myconfig import *
 from View.mydocks.faceClient import FaceClientSocket
 from threading import *

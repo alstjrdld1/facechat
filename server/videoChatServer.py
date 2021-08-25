@@ -59,78 +59,93 @@ class VideoServerSocket:
         self.removeAllClients()
         self.server.close()
  
-    # def receive(self, addr, client):
-    #     while True:            
-    #         try:
-    #             data = client.recv(921600) 
-
-    #         except Exception as e:
-    #             print('Recv() Error :', e)                
-    #             break
-    #         else:
-    #             # print("DATA LEN : ", len(data))
-                
-    #             for c in self.clients:
-    #                 if(c.getpeername() != client.getpeername()):
-    #                     c.sendall(data)
-    #                 # print("SEND SUCCESS ")
-
-    #     self.removeClient(addr, client)
-
     def receive(self, addr, client):
-        data = b""
-        metadata_size = struct.calcsize("Q")
+        frame = b""
+        while True:            
+            try:
+                data = client.recv(921600) 
+                print("\n RECEIVED DATA TYPE : ", type(data))
 
-        while True:
-            ### receive meta data 
-            try : 
-                while len(data) < metadata_size : 
-                    # packet = client.recv(4 * 1024) 
-                    packet = client.recv(921600)
-                    if not packet: break
-                    data += packet
-                packed_msg_size = data[:metadata_size]
-                data = data[metadata_size:]
-                msg_size = struct.unpack("Q", packed_msg_size)[0]
+                # time.sleep(0.02)
+                # data = client.recv(4 * 1024) 
 
-            except Exception as e :
-                print("Error on receive first while 1 : ", e)
+            except Exception as e:
+                print('Recv() Error :', e)                
                 break
-
-            ### make frame_data
-            try : 
-                while len(data) < msg_size : 
-                    try :
-                        data += client.recv(4 * 1024) 
-                    except Exception as e :
-                        print("data receive error : ", e)
-                    # data += client.recv(921600)
-
-                    frame_data = data[:msg_size]
-                    data = data[msg_size:]
-
-                    try : 
-
-                        frame = pickle.loads(frame_data)
-                    except Exception as e :
-                        print("pickle load error : ", e)
-                        
-                    
-            except Exception as e :
-                print("Error on frame : ", e) 
-                break
-            
-            ### send frame
-            try :
-                serialized_frame  = self.serialize(frame)
+            else:
+                # print("DATA LEN : ", len(data))
+                print("FROM : {}, RECEIVED DATA LENGTH : {}".format(addr, len(data)))
+                
+                if(len(frame) < 921600):
+                    frame += data
+                    print("\n In Receive function continue activated")
+                    continue
                 
                 for c in self.clients:
-                    if(c.getpeername() == client.getpeername()):
-                        c.sendall(serialized_frame)
+                    if(c.getpeername() != client.getpeername()):
+                        print(len(data))
+                        c.sendall(frame[:921600])
+                
+                print("SEND SUCCESS ")
 
-            except Exception as e : 
-                print("Serialize error and sending error : ", e)
-                break
+                frame = frame[921600:]
+        self.removeClient(addr, client)
+        return
+
+    # def receive(self, addr, client):
+    #     data = b""
+    #     metadata_size = struct.calcsize("Q")
+
+    #     while True:
+    #         ### receive meta data 
+    #         try : 
+    #             while len(data) < metadata_size : 
+    #                 # packet = client.recv(4 * 1024)  
+    #                 packet = client.recv(921600)
+    #                 if not packet: break
+    #                 data += packet
+    #             packed_msg_size = data[:metadata_size]
+    #             data = data[metadata_size:]
+    #             msg_size = struct.unpack("Q", packed_msg_size)[0]
+
+    #         except Exception as e :
+    #             print("Error on receive first while 1 : ", e)
+    #             break
+
+    #         ### make frame_data
+    #         try : 
+    #             while len(data) < msg_size : 
+    #                 try :
+    #                     data += client.recv(921600)
+    #                     # data += client.recv(4 * 1024) 
+    #                 except Exception as e :
+    #                     print("data receive error : ", e)
+
+    #                 frame_data = data[:msg_size]
+    #                 data = data[msg_size:]
+
+    #                 try : 
+
+    #                     frame = pickle.loads(frame_data)
+    #                 except Exception as e :
+    #                     print("pickle load error : ", e)
+                        
+                    
+    #         except Exception as e :
+    #             print("Error on frame : ", e) 
+    #             break
+            
+    #         ### send frame
+    #         try :
+    #             serialized_frame  = self.serialize(frame)
+                
+    #             for c in self.clients:
+    #                 if(c.getpeername() == client.getpeername()):
+    #                     c.sendall(serialized_frame)
+
+    #         except Exception as e : 
+    #             print("Serialize error and sending error : ", e)
+    #             break
 
     def serialize(self, msg):
         try: 
