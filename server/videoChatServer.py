@@ -64,7 +64,7 @@ class VideoServerSocket:
         while True:            
             try:
                 data = client.recv(921600) 
-                print("\n RECEIVED DATA TYPE : ", type(data))
+                # print("\n RECEIVED DATA TYPE : ", type(data))
 
                 # time.sleep(0.02)
                 # data = client.recv(4 * 1024) 
@@ -74,21 +74,18 @@ class VideoServerSocket:
                 break
             else:
                 # print("DATA LEN : ", len(data))
-                print("FROM : {}, RECEIVED DATA LENGTH : {}".format(addr, len(data)))
+                # print("FROM : {}, RECEIVED DATA LENGTH : {}".format(addr, len(data)))
+                frame += data
                 
-                if(len(frame) < 921600):
-                    frame += data
-                    print("\n In Receive function continue activated")
-                    continue
+                if(len(frame) >= 921600):
+                    for c in self.clients:
+                        if(c.getpeername() != client.getpeername()):
+                            # print(len(data))
+                            c.sendall(frame[:921600])
+                    frame = frame[921600:]
                 
-                for c in self.clients:
-                    if(c.getpeername() != client.getpeername()):
-                        print(len(data))
-                        c.sendall(frame[:921600])
-                
-                print("SEND SUCCESS ")
+                #  print("SEND SUCCESS ")
 
-                frame = frame[921600:]
         self.removeClient(addr, client)
         return
 

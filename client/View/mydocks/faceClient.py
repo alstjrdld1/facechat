@@ -46,58 +46,56 @@ class FaceClientSocket:
             print('Client Stop') 
             
  
-    def receive(self, client):
-        while self.bConnect:            
-            try:
-                data = client.recv(921600)             
-
-                #print("RECEIVED DATA TYPE : ", type(data))
-                
-                if(len(data) == 921600):
-                    frame = np.fromstring(data, dtype=np.uint8)
-
-                    frame = frame.reshape(480, 640, 3)
-                    self.recv.recv_signal.emit(frame)
-                else:
-                    print("FAIL, RECEIVED DATA LENGTH IS : ", len(data))
-
-            except Exception as e:
-                print('Recv() Error :', e)                 
-                break 
-
-        self.stop() 
-
     # def receive(self, client):
-    #     frame = b""
-
-    #     while self.bConnect:
+    #     while self.bConnect:            
     #         try:
-    #             ### data 받는 곳 
-    #             data = client.recv(921600)
-    #             print("\n RECIEVED DATA LENGTH : ", len(data))
-    #             print("\n RECEIVED DATA TYPE : ", type(data))
-    #             print("\n Current frame LENGTH : ", len(frame))
-    #             print("\n Current frame type : ", type(frame))
+    #             data = client.recv(921600)             
 
-    #             ### frame 크기 안 모이면 다시 while 루프 
-    #             if(len(frame) < 921600):
-    #                 frame += data 
-    #                 print("\n Receive function called ")
-    #                 continue 
+    #             #print("RECEIVED DATA TYPE : ", type(data))
                 
-    #         except Exception as e :
-    #             print('Recv() error : ', e)
-    #             break
+    #             if(len(data) == 921600):
+    #                 frame = np.fromstring(data, dtype=np.uint8)
 
-    #         ### video 포맷팅     
-    #         try:
-    #             video = np.fromstring(frame, dtype=np.int8)
-    #             video = video.reshape(480, 640, 3)
-    #             frame = frame[921600:]
-    #             self.recv.recv_signal.emit(video)
+    #                 frame = frame.reshape(480, 640, 3)
+    #                 self.recv.recv_signal.emit(frame)
+    #             else:
+    #                 print("FAIL, RECEIVED DATA LENGTH IS : ", len(data))
 
-    #         except Exception as e :
-    #             print("\n video reshaping error : ", e)            
+    #         except Exception as e:
+    #             print('Recv() Error :', e)                 
+    #             break 
+
+    #     self.stop() 
+
+    def receive(self, client):
+        frame = b""
+
+        while self.bConnect:
+            try:
+                ### data 받는 곳 
+                data = client.recv(921600)
+
+                # print("\n RECIEVED DATA LENGTH : ", len(data))
+                # print("\n RECEIVED DATA TYPE : ", type(data))
+                # print("\n Current frame LENGTH : ", len(frame))
+                # print("\n Current frame type : ", type(frame))
+
+                frame += data 
+
+            except Exception as e :
+                print('Recv() error : ', e)
+                break
+
+            ### video 포맷팅     
+            try:
+                if(len(frame) >= 921600):
+                    video = np.fromstring(frame[:921600], dtype=np.uint8)
+                    video = video.reshape(480, 640, 3)
+                    self.recv.recv_signal.emit(video)
+                    frame = frame[921600:]
+
+            except Exception as e :
+                print("\n video reshaping error : ", e)            
 
 
     # def receive(self, client):
