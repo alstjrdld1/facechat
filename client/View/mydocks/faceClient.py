@@ -3,6 +3,7 @@ from socket import *
 import pickle
 import struct
 import time
+import cv2
 from PyQt5.QtCore import Qt, pyqtSignal, QObject
 
 import numpy as np
@@ -45,7 +46,7 @@ class FaceClientSocket:
             del(self.client)
             print('Client Stop') 
             
- 
+    ### 가장 간단한 폼 
     # def receive(self, client):
     #     while self.bConnect:            
     #         try:
@@ -67,94 +68,116 @@ class FaceClientSocket:
 
     #     self.stop() 
 
+    # ### 느리게 되는 거 
+    # def receive(self, client):
+    #     frame = b""
+
+    #     while self.bConnect:
+    #         try:
+    #             ### data 받는 곳 
+    #             data = client.recv(921600)
+
+    #             # print("\n RECIEVED DATA LENGTH : ", len(data))
+    #             # print("\n RECEIVED DATA TYPE : ", type(data))
+    #             # print("\n Current frame LENGTH : ", len(frame))
+    #             # print("\n Current frame type : ", type(frame))
+
+    #             frame += data 
+
+    #         except Exception as e :
+    #             print('Recv() error : ', e)
+    #             break
+
+    #         ### video 포맷팅     
+    #         try:
+    #             if(len(frame) >= 921600):
+    #                 video = np.fromstring(frame[:921600], dtype=np.uint8)
+    #                 video = video.reshape(480, 640, 3)
+    #                 self.recv.recv_signal.emit(video)
+    #                 frame = frame[921600:]
+
+    #         except Exception as e :
+    #             print("\n video reshaping error : ", e)            
+
+
     def receive(self, client):
-        frame = b""
+        payload_size = struct.calcsize('>L')
+        print("PAY LOAD SIZE : ", payload_size )
+        data = b""
 
         while self.bConnect:
             try:
-                ### data 받는 곳 
-                data = client.recv(921600)
+                break_loop = False
 
-                # print("\n RECIEVED DATA LENGTH : ", len(data))
-                # print("\n RECEIVED DATA TYPE : ", type(data))
-                # print("\n Current frame LENGTH : ", len(frame))
-                # print("\n Current frame type : ", type(frame))
+                while len(data) < payload_size:
+                    received = client.recv(4096)
+                    print("\n RECEIVED DATA LENGTH : ", len(received))
+                    # if received == b'':
+                    #     client.close()
+                    #     break_loop = True
+                    #     break
+                    data += received
 
-                frame += data 
+                packed_msg_size = data[:payload_size]
+                data = data[payload_size:]
 
-            except Exception as e :
-                print('Recv() error : ', e)
-                break
+                msg_size = struct.unpack(">L", packed_msg_size)[0]
 
-            ### video 포맷팅     
-            try:
-                if(len(frame) >= 921600):
-                    video = np.fromstring(frame[:921600], dtype=np.uint8)
-                    video = video.reshape(480, 640, 3)
-                    self.recv.recv_signal.emit(video)
-                    frame = frame[921600:]
+                print("\n RECEIVED MSG_SIZE : ", msg_size)
+                print("\n CURRENT DATA SIZE : ", len(data))
 
-            except Exception as e :
-                print("\n video reshaping error : ", e)            
+                while len(data) < msg_size:
+                    data += client.recv(4096)
 
+                frame_data = data[:msg_size]
+                data = data[msg_size:]
 
-    # def receive(self, client):
-    #     data = b""
-    #     metadata_size = struct.calcsize("Q")
-
-    #     while True:
-    #         try : 
-    #             while len(data) < metadata_size : 
-    #                 packet = client.recv(4 * 1024)  
-    #                 # packet = client.recv(921600) 
-    #                 if not packet: break
-    #                 data += packet
-    #             packed_msg_size = data[:metadata_size]
-    #             data = data[metadata_size:]
-    #             msg_size = struct.unpack("Q", packed_msg_size)[0]
-
-    #         except Exception as e :
-    #             print("\n Error on receive first while 1 : ", e)
-    #             break
-
-    #         try : 
-
-    #             while len(data) < msg_size : 
-    #                 data += client.recv(4 * 1024) 
-    #                 # data += client.recv(921600)
-    #                 frame_data = data[:msg_size]
-    #                 data = data[msg_size:]
-    #                 try :  
-    #                     frame = pickle.loads(frame_data)
-    #                 except Exception as e :
-    #                     # print("\n data : ", data)
-    #                     # print("\n frame data : ", frame_data)
-    #                     # print("\n print frame : ", frame)
-    #                     # print("\n frame type : ", frame)
-    #                     print("\n pickle Error : ", e)
-                     
-    #                 try : 
-    #                     self.recv.recv_signal.emit(frame)   
-    #                 except Exception as e :
-    #                     print("\n send signal error : ", e)
-                    
-    #         except Exception as e :
-    #             print("\n Error on frame emit : ", e) 
-    #             break
- 
+                frame = pickle.loads(frame_data, fix_imports=True, encoding="bytes")
+                print("FRAME : ", frame)
+                frame = cv2.imdecode(frame ,cv2.IMREAD_COLOR)
+                self.recv.recv_signal.emit(frame)
                 
+            except Exception as e :
+                print("\n Receive Error : ", e)
+
+                
+    # def send(self, msg):
+    #     if not self.bConnect: 
+    #         print("\n CONNECTION ERROR ")
+    #         return
+    #     try:         
+    #         message = msg.flatten()
+    #         #print("SENDING MESSAGE DATA TYPE : ", type(message))
+    #         #print("SENDING MESSAGE DATA LEN : " , len(message))
+    #         video = message.tostring()
+    #         # print("SENDING DATA LENGTH : ", len(video))
+    #         self.client.sendall(video)
+    #         # print("SEND : ", video)
+    #     except Exception as e:
+    #         print('Send() Error : ', e)
+    #     else:
+    #         return
+
     def send(self, msg):
         if not self.bConnect: 
             print("\n CONNECTION ERROR ")
             return
         try:         
-            message = msg.flatten()
-            #print("SENDING MESSAGE DATA TYPE : ", type(message))
-            #print("SENDING MESSAGE DATA LEN : " , len(message))
-            video = message.tostring()
-            # print("SENDING DATA LENGTH : ", len(video))
-            self.client.sendall(video)
-            # print("SEND : ", video)
+            video = cv2.imencode('.jpg', msg, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
+            # print("\n sending video : ", video)
+
+            data = pickle.dumps(video ,0)
+            size = len(data)
+            # print("\n sending data size : ", size)
+
+            try:
+                willsend = struct.pack('>L', size) + data
+                # print("\n WILL SEND : ", willsend)
+                self.client.sendall(willsend)
+
+            except Exception as e :
+                print("\n sending error : ", e)
+
         except Exception as e:
             print('Send() Error : ', e)
         else:

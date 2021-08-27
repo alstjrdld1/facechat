@@ -2,6 +2,7 @@ from ServerConfig import *
 from threading import Thread
 from socket import * 
 
+import cv2
 import numpy as np
 import time
 import pickle 
@@ -58,102 +59,77 @@ class VideoServerSocket:
                  
         self.removeAllClients()
         self.server.close()
- 
-    def receive(self, addr, client):
-        frame = b""
-        while True:            
-            try:
-                data = client.recv(921600) 
-                # print("\n RECEIVED DATA TYPE : ", type(data))
 
-                # time.sleep(0.02)
-                # data = client.recv(4 * 1024) 
-
-            except Exception as e:
-                print('Recv() Error :', e)                
-                break
-            else:
-                # print("DATA LEN : ", len(data))
-                # print("FROM : {}, RECEIVED DATA LENGTH : {}".format(addr, len(data)))
-                frame += data
-                
-                if(len(frame) >= 921600):
-                    for c in self.clients:
-                        if(c.getpeername() != client.getpeername()):
-                            # print(len(data))
-                            c.sendall(frame[:921600])
-                    frame = frame[921600:]
-                
-                #  print("SEND SUCCESS ")
-
-        self.removeClient(addr, client)
-        return
-
+    # ### 이거 열면 느린거 
     # def receive(self, addr, client):
-    #     data = b""
-    #     metadata_size = struct.calcsize("Q")
+    #     frame = b""
+    #     while True:            
+    #         try:
+    #             data = client.recv(921600) 
+    #             # print("\n RECEIVED DATA TYPE : ", type(data))
 
-    #     while True:
-    #         ### receive meta data 
-    #         try : 
-    #             while len(data) < metadata_size : 
-    #                 # packet = client.recv(4 * 1024)  
-    #                 packet = client.recv(921600)
-    #                 if not packet: break
-    #                 data += packet
-    #             packed_msg_size = data[:metadata_size]
-    #             data = data[metadata_size:]
-    #             msg_size = struct.unpack("Q", packed_msg_size)[0]
+    #             # time.sleep(0.02)
+    #             # data = client.recv(4 * 1024) 
 
-    #         except Exception as e :
-    #             print("Error on receive first while 1 : ", e)
+    #         except Exception as e:
+    #             print('Recv() Error :', e)                
     #             break
-
-    #         ### make frame_data
-    #         try : 
-    #             while len(data) < msg_size : 
-    #                 try :
-    #                     data += client.recv(921600)
-    #                     # data += client.recv(4 * 1024) 
-    #                 except Exception as e :
-    #                     print("data receive error : ", e)
-
-    #                 frame_data = data[:msg_size]
-    #                 data = data[msg_size:]
-
-    #                 try : 
-
-    #                     frame = pickle.loads(frame_data)
-    #                 except Exception as e :
-    #                     print("pickle load error : ", e)
-                        
-                    
-    #         except Exception as e :
-    #             print("Error on frame : ", e) 
-    #             break
-            
-    #         ### send frame
-    #         try :
-    #             serialized_frame  = self.serialize(frame)
+    #         else:
+    #             # print("DATA LEN : ", len(data))
+    #             # print("FROM : {}, RECEIVED DATA LENGTH : {}".format(addr, len(data)))
+    #             frame += data
                 
-    #             for c in self.clients:
-    #                 if(c.getpeername() == client.getpeername()):
-    #                     c.sendall(serialized_frame)
+    #             if(len(frame) >= 921600):
+    #                 for c in self.clients:
+    #                     if(c.getpeername() != client.getpeername()):
+    #                         # print(len(data))
+    #                         c.sendall(frame[:921600])
+    #                 frame = frame[921600:]
+                
+    #             #  print("SEND SUCCESS ")
 
-    #         except Exception as e : 
-    #             print("Serialize error and sending error : ", e)
-    #             break
+    #     self.removeClient(addr, client)
+    #     return
 
-    def serialize(self, msg):
-        try: 
-            img_serialize = pickle.dumps(msg)
-            message = struct.pack("Q", len(img_serialize)) + img_serialize 
+    def receive(self, addr, client):
+        data = b""
+        payload_size = struct.calcsize('>L')
+        print("\n PAY LOAD SIZE : ", payload_size)
+        count = 0 
+        while True:
+            count = count + 1
+            print("\n while loop count : ", count)
+            while len(data) < payload_size:
+                recv = client.recv(4096)
+                print("\n RECEIVED DATA LENGTH : ", len(recv))
 
-        except Exception as e : 
-            print("Send() Error : ", e)
-        
-        else:
-            return message
+                data += recv 
+            
+            packed_msg_size = data[:payload_size]
+            data = data[payload_size:]
+
+            msg_size = struct.unpack('>L', packed_msg_size)[0]
+
+            print("\n RECEIVED MSG_SIZE : ", msg_size)
+            print("\n CURRENT DATA SIZE : ", len(data))
+
+            while len(data) < msg_size:
+                data += client.recv(4096)
+            
+            frame_data = data[:msg_size]
+            data = data[msg_size:]
+            print("\n FRAME DATA LENGTH : ", len(frame_data))
+            print("\n REST OF DATA LENGTH  :", len(data))
+            
+            for c in self.clients:
+                if (c.getpeername() == client.getpeername()):
+                    c.sendall(frame_data)
+
+            # frame = pickle.loads(frame_data, fix_imports = True, encoding = 'bytes')
+            # frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
+            
+
+
 
     def removeClient(self, addr, client):
         # find closed client index
