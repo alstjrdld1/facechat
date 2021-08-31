@@ -95,42 +95,20 @@ class VideoServerSocket:
         data = b""
         payload_size = struct.calcsize('>L')
         print("\n PAY LOAD SIZE : ", payload_size)
-        count = 0 
-        while True:
-            count = count + 1
-            print("\n while loop count : ", count)
-            while len(data) < payload_size:
-                recv = client.recv(4096)
-                print("\n RECEIVED DATA LENGTH : ", len(recv))
+        try:
+            while True:
 
-                data += recv 
+                while len(data) < payload_size:
+                    recv = client.recv(4096)
+                    print("\n RECEIVED DATA LENGTH : ", len(recv))
+
+                    for c in self.clients:
+                        if (c.getpeername() != client.getpeername()):
+                            c.sendall(recv)
+
+        except Exception as e : 
+            print("Error : ", e)
             
-            packed_msg_size = data[:payload_size]
-            data = data[payload_size:]
-
-            msg_size = struct.unpack('>L', packed_msg_size)[0]
-
-            print("\n RECEIVED MSG_SIZE : ", msg_size)
-            print("\n CURRENT DATA SIZE : ", len(data))
-
-            while len(data) < msg_size:
-                data += client.recv(4096)
-            
-            frame_data = data[:msg_size]
-            data = data[msg_size:]
-            print("\n FRAME DATA LENGTH : ", len(frame_data))
-            print("\n REST OF DATA LENGTH  :", len(data))
-            
-            for c in self.clients:
-                if (c.getpeername() == client.getpeername()):
-                    c.sendall(frame_data)
-
-            # frame = pickle.loads(frame_data, fix_imports = True, encoding = 'bytes')
-            # frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
-            
-
-
-
     def removeClient(self, addr, client):
         # find closed client index
         idx = -1

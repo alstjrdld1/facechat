@@ -111,7 +111,7 @@ class FaceClientSocket:
 
                 while len(data) < payload_size:
                     received = client.recv(4096)
-                    print("\n RECEIVED DATA LENGTH : ", len(received))
+                    # print("\n RECEIVED DATA LENGTH : ", len(received))
                     # if received == b'':
                     #     client.close()
                     #     break_loop = True
@@ -123,8 +123,8 @@ class FaceClientSocket:
 
                 msg_size = struct.unpack(">L", packed_msg_size)[0]
 
-                print("\n RECEIVED MSG_SIZE : ", msg_size)
-                print("\n CURRENT DATA SIZE : ", len(data))
+                # print("\n RECEIVED MSG_SIZE : ", msg_size)
+                # print("\n CURRENT DATA SIZE : ", len(data))
 
                 while len(data) < msg_size:
                     data += client.recv(4096)
@@ -133,14 +133,14 @@ class FaceClientSocket:
                 data = data[msg_size:]
 
                 frame = pickle.loads(frame_data, fix_imports=True, encoding="bytes")
-                print("FRAME : ", frame)
-                frame = cv2.imdecode(frame ,cv2.IMREAD_COLOR)
+                # print("FRAME : ", frame)
+                # print("\n Frame shape : ", frame.shape)
+                frame = cv2.imdecode(frame[1] ,cv2.IMREAD_COLOR)
                 self.recv.recv_signal.emit(frame)
                 
             except Exception as e :
                 print("\n Receive Error : ", e)
-
-                
+           
     # def send(self, msg):
     #     if not self.bConnect: 
     #         print("\n CONNECTION ERROR ")
@@ -164,7 +164,11 @@ class FaceClientSocket:
             return
         try:         
             video = cv2.imencode('.jpg', msg, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
+            # print("\n msg type : {}, video type : {}".format(type(msg), type(video)))
             # print("\n sending video : ", video)
+            # print("\n msg shape : ", msg.shape)
+            # print("\n msg length : ", len(msg))
+            # print("\n video shape : {}, {}".format(video[0], len(video[1])))
 
             data = pickle.dumps(video ,0)
             size = len(data)
@@ -173,6 +177,7 @@ class FaceClientSocket:
             try:
                 willsend = struct.pack('>L', size) + data
                 # print("\n WILL SEND : ", willsend)
+                # print("\n will send data length : ", len(willsend))
                 self.client.sendall(willsend)
 
             except Exception as e :

@@ -14,3 +14,4 @@ if __name__ == '__main__':
     ViewController().instance().registerMainWindow(mainWindow)
 
     sys.exit(app.exec_())
+    
