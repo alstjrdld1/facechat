@@ -9,6 +9,7 @@ from os.path import isfile, join
 class Controller(SingletonInstane):
     
     currentUser = None 
+    chatRoomUser = 0
 
     def __init__(self):
         from Control.ViewController import ViewController
@@ -95,3 +96,12 @@ class Controller(SingletonInstane):
         else:
             return None 
     
+    def getChatRoomUserNumber(self):
+        return self.chatRoomUser
+
+    def setChatRoomUserNumber(self, num):
+        if(self.chatRoomUser == 0):
+            self.chatRoomUser = num
+        else:
+            self.chatRoomUser = num
+            self.vc.instance().chatRoomUserNumberUpdate()

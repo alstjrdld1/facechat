@@ -53,9 +53,9 @@ class DatabaseController(SingletonInstane):
 
     def changeInfo(self, Name, PhNum, Email, NickName, Id, Pw, Greeting):
         sql = "UPDATE user SET name = '{}', email = '{}', nick_name = '{}', pw = '{}', greeting = '{}' WHERE id = '{}'".format(Name, Email, NickName, Pw, Greeting, Id)
-        result = self.sendQuery(sql)
-
-        if len(result) == 0 or result == None:
+        try:
+            result = self.sendQuery(sql)
+        except Exception as e :
             return False
         else :
             return True

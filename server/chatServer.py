@@ -55,13 +55,20 @@ class ServerSocket(QObject):
                 print(client)    
                 self.clients.append(client)
                 self.ip.append(addr)                
-                self.update_signal.emit(addr, True)                
+                self.update_signal.emit(addr, True)  
+                self.clientEnterAlert()
                 t = Thread(target=self.receive, args=(addr, client))
                 self.threads.append(t)
                 t.start()                
                  
         self.removeAllClients()
         self.server.close()
+
+    def clientEnterAlert(self):
+        msg = "[관리자] 현재 방 인원은 {}명입니다.".format(len(self.clients))
+        enMsg = msg.encode(encoding="utf8")
+        for c in self.clients:
+            c.sendall(enMsg)
  
     def receive(self, addr, client):
         while True:            

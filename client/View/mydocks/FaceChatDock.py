@@ -10,6 +10,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from View.mydocks.Dock import Dock
+from View.mydocks.AudioClient import *
 
 
 class SendVideoThread(QThread):
@@ -19,6 +20,9 @@ class SendVideoThread(QThread):
     def __init__(self):
         super().__init__()
         self._run_flag = True
+
+    def __del__(self):
+        self.stop()
 
     def run(self):
 
@@ -32,6 +36,7 @@ class SendVideoThread(QThread):
         cap.release()
     
     def stop(self):
+        print("\n VIDEO thread stop method called")
         self._run_flag = False
         self.wait()
 
@@ -47,56 +52,60 @@ class SendVideoThread(QThread):
 
 
 class FaceChatDock(Dock):
+    display_width = 0
+    display_height = 0
+    frameList = []
 
     def __init__(self):
         from Control.Controller import Controller
+        
         self.controller = Controller()
-
+        
         self.c = FaceClientSocket(self)
 
         if(self.c.connectServer(SERVER_IP, int(FACE_CHAT_PORT))):
             print("FACE CHAT SERVER CONNECTED")
         else:
             print("FACE CHAT SERVER CONNECT FAIL")
-
+        
+        # self.audio = AudioClient(SERVER_IP, AUDIO_CHAT_PORT)
+                
         super().__init__()
         self.setupUI()
 
     def __del__(self):
-        self.thread.stop()
-        self.c.stop()
+        # del(self.audio)
+        del(self.c)
+
+        self.stop()
+
+    def stop(self):
+        self.bConnect = False       
+        if hasattr(self, 'client'):  
+            self.c.close()
+            del(self.c)
+            print('Client Stop') 
+            
+        # self.audio.stop()
+        # del(self.audio)
 
     def setupUI(self):
+
+        self.myNick = self.controller.instance().getCurrentUser().getNickName()
+ 
         self.setWindowTitle("Face chat dock")
 
-        self.display_width = 450  
-        self.display_height = 336
-
-        self.my_image_label = QLabel()
-        self.my_image_label.resize(self.display_width, self.display_height)
-
-        self.other_image_label = QLabel()
-        self.other_image_label.resize(self.display_width, self.display_height)
-
-        h1box = QHBoxLayout()
-        h1box.addWidget(self.my_image_label)
-        h1box.addWidget(self.other_image_label)
-
-        h2box = QHBoxLayout()
-        name1 = QLabel(self.controller.instance().getCurrentUser().getNickName())
-        name2 = QLabel()
-        
-      
-        name2.setText("NONE")
-        name1.setAlignment(Qt.AlignCenter)
-        name2.setAlignment(Qt.AlignCenter)
-
-        h2box.addWidget(name1)
-        h2box.addWidget(name2)
+        self.h1box = QHBoxLayout()
+        self.h2box = QHBoxLayout()
+        self.h3box = QHBoxLayout()
+        self.h4box = QHBoxLayout()
+        self.updateVideoUI()
 
         vbox = QVBoxLayout()
-        vbox.addLayout(h1box, 2)
-        vbox.addLayout(h2box)
+        vbox.addLayout(self.h1box)
+        vbox.addLayout(self.h2box)
+        vbox.addLayout(self.h3box)
+        vbox.addLayout(self.h4box)
 
         widget = QWidget()
         widget.setLayout(vbox)
@@ -109,17 +118,68 @@ class FaceChatDock(Dock):
         self.thread.start()
 
         self.c.recv.recv_signal.connect(self.update_other_image)
+        
+        # self.audio_thread = Thread(target = self.audio.start, args=())
+        # self.audio_thread.start()
+        
+        # print("CURRENT VIDEO CHAT DOCK HEIGHT :", self.height())
+        # print("CURRENT VIDEO CHAT DOCK WIDTH :", self.width())
+
+        # print("VIDEO CHAT DOCK SIZE :", self.size())
+        # print("VIDEO CHAT DOCK SIZE :", self.frameSize())
 
 
     def closeEvent(self, event):
         self.thread.stop()
-        self.c.stop()
+        # self.c.stop()
+        # del(self.audio)
+        # del(self.c)
+        # del(self.audio_thread)
         event.accept()
-    
+
+    def caculateDisplaySize(self, number):
+        if(number == 1):
+            self.display_width = self.width()
+            self.display_height = self.height()
+        elif(number <= 4):
+            self.display_width = int(self.width() / number)
+            self.display_height = int(self.height() / number)
+        else:
+            self.display_width = int(self.width() / 4)
+            self.display_height = int(self.height() / 4)
+
+    def updateVideoUI(self):
+        member_num = self.controller.instance().getChatRoomUserNumber() # real version 
+        # member_num = 12 # test version 
+        self.caculateDisplaySize(member_num)
+        
+        for count in range(member_num):
+            createFrame = QLabel(str(count))
+            createFrame.resize(self.display_width, self.display_height)
+            print("{} frame width : {}, height : {}".format(count, self.display_width, self.display_height))
+            createFrame.setStyleSheet("border: 1px solid black;")
+
+            if(int(count/4) == 0):
+                self.h1box.addWidget(createFrame)
+            elif(int(count/4) == 1):
+                self.h2box.addWidget(createFrame)
+            elif(int(count/4) == 2):
+                self.h3box.addWidget(createFrame)
+            elif(int(count/4) == 3):
+                self.h4box.addWidget(createFrame)
+
+            self.frameList.append(createFrame)
+            # print("{} Frame added".format(count))
+        
     @pyqtSlot(np.ndarray)
     def update_image(self, cv_img):
+
+        cv2.putText(cv_img,self.myNick,(260,450), cv2.FONT_HERSHEY_COMPLEX,1,(250,120,255),2)
+
         qt_img = self.convert_cv_qt(cv_img)
-        self.my_image_label.setPixmap(qt_img)
+        # self.my_image_label.setPixmap(qt_img) 
+        self.frameList[0].setPixmap(qt_img) 
+
         # print(cv_img.shape)
         # self.c.send(cv_img) 
         sendingThread = Thread(target=self.c.send, args=(cv_img, ))
@@ -128,7 +188,17 @@ class FaceChatDock(Dock):
     @pyqtSlot(np.ndarray)
     def update_other_image(self, cv_img):
         qt_img = self.convert_cv_qt(cv_img)
-        self.other_image_label.setPixmap(qt_img)
+        count = 0 
+
+        for fl in self.frameList:
+            count += 1
+            # print("FOR LOOP : ", count)
+            if count == 1 :
+                continue
+            fl.setPixmap(qt_img)
+            # print("SET PIXMAP CLEAR")
+            
+        # self.frameList[1].setPixmap(qt_img)
 
     def convert_cv_qt(self, cv_img):
         rgb_image = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)

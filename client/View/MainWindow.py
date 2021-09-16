@@ -1,3 +1,4 @@
+from PyQt5 import QtGui
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -19,4 +20,7 @@ class MainWindow(QMainWindow):
         # self.move(660, 290) # Initialize the window location when program start
         self.setFixedSize(WINDOW_SIZE) # Inital size of the window when program start 
         self.setStyleSheet(BACKGROUND_COLOR)
+    
+    def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+        return super().closeEvent(a0)
         

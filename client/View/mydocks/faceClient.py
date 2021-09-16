@@ -99,7 +99,6 @@ class FaceClientSocket:
     #         except Exception as e :
     #             print("\n video reshaping error : ", e)            
 
-
     def receive(self, client):
         payload_size = struct.calcsize('>L')
         print("PAY LOAD SIZE : ", payload_size )
@@ -111,11 +110,11 @@ class FaceClientSocket:
 
                 while len(data) < payload_size:
                     received = client.recv(4096)
-                    # print("\n RECEIVED DATA LENGTH : ", len(received))
-                    # if received == b'':
-                    #     client.close()
-                    #     break_loop = True
-                    #     break
+                    # print("\n RECEIVED DATA : ", received) 
+                    if received == b'':
+                        client.close()
+                        break_loop = True
+                        break
                     data += received
 
                 packed_msg_size = data[:payload_size]
@@ -129,6 +128,7 @@ class FaceClientSocket:
                 while len(data) < msg_size:
                     data += client.recv(4096)
 
+
                 frame_data = data[:msg_size]
                 data = data[msg_size:]
 
@@ -140,7 +140,9 @@ class FaceClientSocket:
                 
             except Exception as e :
                 print("\n Receive Error : ", e)
-           
+
+        client.close()
+
     # def send(self, msg):
     #     if not self.bConnect: 
     #         print("\n CONNECTION ERROR ")

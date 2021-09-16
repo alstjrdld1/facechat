@@ -1,9 +1,13 @@
 from PyQt5.QtCore import QSize
+import os 
+
+CURRENT_DIR = os.getcwd()
 
 SERVER_IP = '163.180.116.47'
 PORT = '8759'
 
 FACE_CHAT_PORT = '4953'
+AUDIO_CHAT_PORT = 1357
 
 ###############################################################
 # UTILS
@@ -28,11 +32,11 @@ USER_ROOM = "chat wait room"
 ###############################################################
 
 #### ICON
-WINDOW_ICON = 'C:/Users/minstone/NewbieProject/client/View/Images/flower.JPG'
-BACK_BUTTON_ICON = 'C:/Users/minstone/NewbieProject/client/View/Images/backbutton.png'
-ADD_ICON = 'C:/Users/minstone/NewbieProject/client/View/Images/add.png'
-SEARCH_ICON = 'C:/Users/minstone/NewbieProject/client/View/Images/search.png'
-USER_ICON = 'C:/Users/minstone/NewbieProject/client/View/Images/user.png'
+WINDOW_ICON = os.path.join(CURRENT_DIR, 'client/View/Images/flower.JPG')
+BACK_BUTTON_ICON = os.path.join(CURRENT_DIR, 'client/View/Images/backbutton.png')
+ADD_ICON = os.path.join(CURRENT_DIR, 'client/View/Images/add.png')
+SEARCH_ICON = os.path.join(CURRENT_DIR, 'client/View/Images/search.png')
+USER_ICON = os.path.join(CURRENT_DIR, 'client/View/Images/user.png')
 
 ###############################################################
 # DESIGN

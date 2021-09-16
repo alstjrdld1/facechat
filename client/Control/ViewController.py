@@ -17,6 +17,7 @@ from Control.SingleTon import *
 
 class ViewController(SingletonInstane):
     mainWindow = None 
+    chatWindow = None
 
     def __init__(self):
         self.pageHistory = []
@@ -58,8 +59,8 @@ class ViewController(SingletonInstane):
             self.mainWindow.setCentralWidget(InitPage())
 
         elif(pageName == CHAT_ROOM):
-            chatWindow = ChatRoom()
-            chatWindow.show()
+            self.chatWindow = ChatRoom()
+            self.chatWindow.show()
             self.pageHistory.pop() 
         else:
             err = AlertBox("Error", "Call Wrong page")
@@ -72,3 +73,6 @@ class ViewController(SingletonInstane):
         print(prevPage)
         self.mainWindow.setCentralWidget(prevPage)
         print("Back Button worked!")
+
+    def chatRoomUserNumberUpdate(self):
+        self.chatWindow.faceChatDock.updateVideoUI()

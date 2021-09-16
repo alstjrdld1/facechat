@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets     import QApplication, QMainWindow
 from PyQt5.QtCore import *
 
 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
@@ -19,6 +19,15 @@ class ChatRoom(QMainWindow):
         self.addDockWidget(Qt.LeftDockWidgetArea, self.faceChatDock)
         self.addDockWidget(Qt.RightDockWidgetArea, self.textChatDock)
 
+        # print("\n CHAT ROOM WINDOW CURRENT SIZE : ", self.size())
+
     def closeEvent(self, event):
-        self.faceChatDock.close()
-        self.textChatDock.close()
+        print("\n Close Event Called")
+        
+        print("\n face chat dock close ", self.faceChatDock.close())
+        print("\n text chat dock close " , self.textChatDock.close())
+        
+        del(self.textChatDock)
+        del(self.faceChatDock)
+
+        event.accept()

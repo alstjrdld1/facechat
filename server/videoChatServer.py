@@ -2,10 +2,7 @@ from ServerConfig import *
 from threading import Thread
 from socket import * 
 
-import cv2
 import numpy as np
-import time
-import pickle 
 import struct
 
 class VideoServerSocket:
@@ -39,7 +36,7 @@ class VideoServerSocket:
         self.bListen = False
         if hasattr(self, 'server'):            
             self.server.close()            
-            print('Server Stop')
+            print('Video Server Stop')
  
     def listen(self, server):
         while self.bListen:
@@ -100,11 +97,13 @@ class VideoServerSocket:
 
                 while len(data) < payload_size:
                     recv = client.recv(4096)
+                    print("\n CLIENT  :", client)
                     print("\n RECEIVED DATA LENGTH : ", len(recv))
 
                     for c in self.clients:
-                        if (c.getpeername() != client.getpeername()):
-                            c.sendall(recv)
+                        # if (c.getpeername() == client.getpeername()):
+                        # print(recv)
+                        c.sendall(recv)
 
         except Exception as e : 
             print("Error : ", e)
@@ -139,7 +138,5 @@ class VideoServerSocket:
         print('Number of Client socket\t: ', len(self.clients) )
         print('Number of Client thread\t: ', len(self.threads) )
 
-ip = gethostbyname(gethostname())
-
 vcs = VideoServerSocket()
-vcs.start(ip, FACE_CHAT_PORT)
+vcs.start(SERVER_IP, FACE_CHAT_PORT)

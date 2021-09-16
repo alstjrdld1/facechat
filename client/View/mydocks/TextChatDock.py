@@ -1,7 +1,7 @@
 from PyQt5.QtCore import *
 from View.mydocks.Dock import Dock
-from PyQt5.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, QTextEdit, QVBoxLayout, QWidget
-import View.mydocks.client as client
+from PyQt5.QtWidgets import *
+import View.mydocks.TextChatClient as client
 
 from myconfig import *
 
@@ -24,7 +24,7 @@ class TextChatDock(Dock):
 
     def setupUI(self):
         self.setWindowTitle("Text chat dock")
-        self.setFixedSize(QSize(300, 700))
+        self.setMinimumSize(QSize(300, 700))
         self.widgetContent = QWidget()
 
         widgetLayout = QVBoxLayout()
@@ -47,6 +47,8 @@ class TextChatDock(Dock):
 
         self.widgetContent.setLayout(widgetLayout)
         self.setWidget(self.widgetContent)
+
+        print("\n TEXT CHAT DOCK SIZE : ", self.size())
  
     def updateMsg(self, msg):
         self.recvmsg.addItem(QListWidgetItem(msg))
