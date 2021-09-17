@@ -5,18 +5,22 @@ from face_recognition.faceID import FaceID
 from Control.SingleTon import * 
 from os import listdir
 from os.path import isfile, join
+import threading
+
+current_user_number = 1
 
 class Controller(SingletonInstane):
     
     currentUser = None 
-    chatRoomUser = 0
+    chatRoomUser = 1
+    lock = threading.Lock()
 
     def __init__(self):
         from Control.ViewController import ViewController
         self.dbConn = DatabaseController()
         self.vc = ViewController()
         super().__init__()
-
+        
     def printHello(self):
         print("Hello")
     
@@ -100,8 +104,16 @@ class Controller(SingletonInstane):
         return self.chatRoomUser
 
     def setChatRoomUserNumber(self, num):
-        if(self.chatRoomUser == 0):
-            self.chatRoomUser = num
-        else:
-            self.chatRoomUser = num
+        global current_user_number
+
+        if num == 1:
+            return
+
+        self.chatRoomUser = num         
+
+        self.lock.acquire()
+        if(current_user_number != self.chatRoomUser):
+            current_user_number = self.chatRoomUser 
+
             self.vc.instance().chatRoomUserNumberUpdate()
+        self.lock.release()

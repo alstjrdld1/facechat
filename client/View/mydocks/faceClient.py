@@ -44,60 +44,7 @@ class FaceClientSocket:
         if hasattr(self, 'client'):            
             self.client.close()
             del(self.client)
-            print('Client Stop') 
-            
-    ### 가장 간단한 폼 
-    # def receive(self, client):
-    #     while self.bConnect:            
-    #         try:
-    #             data = client.recv(921600)             
-
-    #             #print("RECEIVED DATA TYPE : ", type(data))
-                
-    #             if(len(data) == 921600):
-    #                 frame = np.fromstring(data, dtype=np.uint8)
-
-    #                 frame = frame.reshape(480, 640, 3)
-    #                 self.recv.recv_signal.emit(frame)
-    #             else:
-    #                 print("FAIL, RECEIVED DATA LENGTH IS : ", len(data))
-
-    #         except Exception as e:
-    #             print('Recv() Error :', e)                 
-    #             break 
-
-    #     self.stop() 
-
-    # ### 느리게 되는 거 
-    # def receive(self, client):
-    #     frame = b""
-
-    #     while self.bConnect:
-    #         try:
-    #             ### data 받는 곳 
-    #             data = client.recv(921600)
-
-    #             # print("\n RECIEVED DATA LENGTH : ", len(data))
-    #             # print("\n RECEIVED DATA TYPE : ", type(data))
-    #             # print("\n Current frame LENGTH : ", len(frame))
-    #             # print("\n Current frame type : ", type(frame))
-
-    #             frame += data 
-
-    #         except Exception as e :
-    #             print('Recv() error : ', e)
-    #             break
-
-    #         ### video 포맷팅     
-    #         try:
-    #             if(len(frame) >= 921600):
-    #                 video = np.fromstring(frame[:921600], dtype=np.uint8)
-    #                 video = video.reshape(480, 640, 3)
-    #                 self.recv.recv_signal.emit(video)
-    #                 frame = frame[921600:]
-
-    #         except Exception as e :
-    #             print("\n video reshaping error : ", e)            
+            print('Client Stop')
 
     def receive(self, client):
         payload_size = struct.calcsize('>L')
@@ -143,23 +90,6 @@ class FaceClientSocket:
 
         client.close()
 
-    # def send(self, msg):
-    #     if not self.bConnect: 
-    #         print("\n CONNECTION ERROR ")
-    #         return
-    #     try:         
-    #         message = msg.flatten()
-    #         #print("SENDING MESSAGE DATA TYPE : ", type(message))
-    #         #print("SENDING MESSAGE DATA LEN : " , len(message))
-    #         video = message.tostring()
-    #         # print("SENDING DATA LENGTH : ", len(video))
-    #         self.client.sendall(video)
-    #         # print("SEND : ", video)
-    #     except Exception as e:
-    #         print('Send() Error : ', e)
-    #     else:
-    #         return
-
     def send(self, msg):
         if not self.bConnect: 
             print("\n CONNECTION ERROR ")
@@ -189,23 +119,3 @@ class FaceClientSocket:
             print('Send() Error : ', e)
         else:
             return
-
-    # def send(self, msg):
-    #     if not self.bConnect:
-    #         return 
-    #     try: 
-    #         # print("Sending this frame : ", msg)
-    #         print("msg len : ", len(msg))
-    #         img_serialize = pickle.dumps(msg)
-
-    #         print("img_serialize len : ", len(img_serialize))
-    #         message = struct.pack("Q", len(img_serialize)) + img_serialize 
-    #         # print("\n sending frame type : ", type(img_serialize))
-    #         # print("\n Sending frame : ", img_serialize)
-            
-    #         self.client.sendall(img_serialize)
-
-
-    #     except Exception as e : 
-    #         print("\n Send() Error : ", e)
-        

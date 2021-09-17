@@ -27,7 +27,7 @@ class ChatRoom(QMainWindow):
         print("\n face chat dock close ", self.faceChatDock.close())
         print("\n text chat dock close " , self.textChatDock.close())
         
-        del(self.textChatDock)
-        del(self.faceChatDock)
+        # del(self.textChatDock)
+        # del(self.faceChatDock)
 
         event.accept()

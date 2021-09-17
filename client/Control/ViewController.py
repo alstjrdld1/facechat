@@ -73,6 +73,9 @@ class ViewController(SingletonInstane):
         print(prevPage)
         self.mainWindow.setCentralWidget(prevPage)
         print("Back Button worked!")
+    
+    def registerChatWindow(self, window):
+        self.chatWindow = window
 
     def chatRoomUserNumberUpdate(self):
         self.chatWindow.faceChatDock.updateVideoUI()

@@ -7,7 +7,7 @@ class Signal(QObject):
     disconn_signal = pyqtSignal()   
  
 class ClientSocket:
- 
+    
     def __init__(self, parent):        
 
         from Control.Controller import Controller

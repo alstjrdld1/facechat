@@ -39,6 +39,7 @@ class UserRoomPage(Page):
     def clickStartChat(self):
         self.chatroom = ChatRoom(self)
         self.chatroom.show()
+        self.vc.instance().registerChatWindow(self)
         # self.vc.instance().changePage(CHAT_ROOM)
     
     def clickEditInfo(self):

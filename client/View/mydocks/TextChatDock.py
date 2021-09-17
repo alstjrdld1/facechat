@@ -35,6 +35,8 @@ class TextChatDock(Dock):
 
         self.sendBtn = QPushButton("SEND")
         self.sendBtn.clicked.connect(self.sendMsg)
+        self.sendBtn.setShortcut(Qt.Key.Key_Enter)
+        self.sendBtn.setShortcut(Qt.Key.Key_Return)
         self.sendBtn.setFixedHeight(50)
 
         sendChatLayout.addWidget(self.textMsg)

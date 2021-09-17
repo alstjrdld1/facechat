@@ -10,7 +10,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from View.mydocks.Dock import Dock
-from View.mydocks.AudioClient import *
+# from View.mydocks.AudioClient import *
 
 
 class SendVideoThread(QThread):
@@ -50,12 +50,14 @@ class SendVideoThread(QThread):
 
         return frame
 
+count = 0
 
 class FaceChatDock(Dock):
     display_width = 0
     display_height = 0
     frameList = []
-
+    current_user_number = 0
+    
     def __init__(self):
         from Control.Controller import Controller
         
@@ -149,11 +151,11 @@ class FaceChatDock(Dock):
             self.display_height = int(self.height() / 4)
 
     def updateVideoUI(self):
-        member_num = self.controller.instance().getChatRoomUserNumber() # real version 
-        # member_num = 12 # test version 
-        self.caculateDisplaySize(member_num)
+        self.member_num = self.controller.instance().getChatRoomUserNumber() # real version 
+        # self.member_num = 2 # test version 
+        self.caculateDisplaySize(self.member_num)
         
-        for count in range(member_num):
+        for count in range(self.member_num):
             createFrame = QLabel(str(count))
             createFrame.resize(self.display_width, self.display_height)
             print("{} frame width : {}, height : {}".format(count, self.display_width, self.display_height))
@@ -178,25 +180,31 @@ class FaceChatDock(Dock):
 
         qt_img = self.convert_cv_qt(cv_img)
         # self.my_image_label.setPixmap(qt_img) 
-        self.frameList[0].setPixmap(qt_img) 
+        # self.frameList[0].setPixmap(qt_img) 
 
         # print(cv_img.shape)
         # self.c.send(cv_img) 
         sendingThread = Thread(target=self.c.send, args=(cv_img, ))
         sendingThread.start() 
+        sendingThread.join()
 
     @pyqtSlot(np.ndarray)
     def update_other_image(self, cv_img):
         qt_img = self.convert_cv_qt(cv_img)
-        count = 0 
+        global count
+        
+        self.frameList[int(count%self.member_num)].setPixmap(qt_img)
 
-        for fl in self.frameList:
-            count += 1
-            # print("FOR LOOP : ", count)
-            if count == 1 :
-                continue
-            fl.setPixmap(qt_img)
-            # print("SET PIXMAP CLEAR")
+        count += 1
+        if count >= 999 :
+            count = 0
+        # for fl in self.frameList:
+        #     count += 1
+        #     # print("FOR LOOP : ", count)
+        #     if count == 1 :
+        #         continue
+        #     fl.setPixmap(qt_img)
+        #     # print("SET PIXMAP CLEAR")
             
         # self.frameList[1].setPixmap(qt_img)
 
