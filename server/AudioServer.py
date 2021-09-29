@@ -1,8 +1,6 @@
 from ServerConfig import * 
 from threading import Thread
 
-from ServerConfig import *
-
 class AudioServer:
     def __init__(self):
             self.bListen = False
@@ -60,11 +58,11 @@ class AudioServer:
                 data = client.recv(1024)
                 self.broadcast(client, data)
             
-            except socket.error:
+            except Exception as e :
                 print("Audio Server Receive Error on : ", client)
+                print("Reason : ", e)
+                self.removeClient(addr, client)
                 client.close()
-
-        self.removeClient(addr, client)
 
     def removeClient(self, addr, client):
         # find closed client index
@@ -75,7 +73,6 @@ class AudioServer:
                 break
  
         client.close()
-        self.ip.remove(addr)
         self.clients.remove(client)
  
         del(self.threads[idx])
@@ -98,15 +95,13 @@ class AudioServer:
         
     def broadcast(self, sock, data):
         for client in self.clients:
-            # if client != self.s and client != sock:
-            try:
-                client.send(data)
-                # print("Sending...")
-                # print("\n Sending Audio Data : ", data)
-            except:
-                pass
-
-   
+            if client != sock:
+                try:
+                    client.send(data)
+                    print("Sending...")
+                    print("\n Sending Audio Data : ", data)
+                except:
+                    pass
 
 server = AudioServer()
 server.start(SERVER_IP, AUDIO_CHAT_PORT)

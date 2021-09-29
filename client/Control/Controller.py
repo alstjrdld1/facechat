@@ -7,7 +7,7 @@ from os import listdir
 from os.path import isfile, join
 import threading
 
-current_user_number = 1
+current_user_count = 1
 
 class Controller(SingletonInstane):
     
@@ -104,7 +104,7 @@ class Controller(SingletonInstane):
         return self.chatRoomUser
 
     def setChatRoomUserNumber(self, num):
-        global current_user_number
+        global current_user_count
 
         if num == 1:
             return
@@ -112,8 +112,6 @@ class Controller(SingletonInstane):
         self.chatRoomUser = num         
 
         self.lock.acquire()
-        if(current_user_number != self.chatRoomUser):
-            current_user_number = self.chatRoomUser 
-
-            self.vc.instance().chatRoomUserNumberUpdate()
+        if(current_user_count != self.chatRoomUser):
+            current_user_count = self.chatRoomUser 
         self.lock.release()

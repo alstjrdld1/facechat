@@ -30,13 +30,12 @@ class TextChatDock(Dock):
         widgetLayout = QVBoxLayout()
         sendChatLayout = QHBoxLayout()
         
-        self.textMsg = QTextEdit()
+        self.textMsg = QLineEdit()
         self.textMsg.setFixedHeight(50)
+        self.textMsg.returnPressed.connect(self.sendMsg)
 
         self.sendBtn = QPushButton("SEND")
         self.sendBtn.clicked.connect(self.sendMsg)
-        self.sendBtn.setShortcut(Qt.Key.Key_Enter)
-        self.sendBtn.setShortcut(Qt.Key.Key_Return)
         self.sendBtn.setFixedHeight(50)
 
         sendChatLayout.addWidget(self.textMsg)
@@ -60,7 +59,8 @@ class TextChatDock(Dock):
         # self.btn.setText('접속')
  
     def sendMsg(self):
-        sendmsg = self.textMsg.toPlainText()    
+        # sendmsg = self.textMsg.toPlainText()    
+        sendmsg = self.textMsg.text()
 
         item = QListWidgetItem()
         item.setText(sendmsg)

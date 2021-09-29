@@ -29,6 +29,7 @@ class FaceClientSocket:
  
         try:
             self.client.connect( (ip, port) )
+            
         except Exception as e: 
             print('Connect Error : ', e)
             return False
@@ -74,7 +75,6 @@ class FaceClientSocket:
 
                 while len(data) < msg_size:
                     data += client.recv(4096)
-
 
                 frame_data = data[:msg_size]
                 data = data[msg_size:]

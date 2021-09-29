@@ -3,11 +3,11 @@ import os
 
 CURRENT_DIR = os.getcwd()
 
-SERVER_IP = '163.180.116.47'
-PORT = '8759'
+SERVER_IP = "IP"
+PORT = '8888'
 
-FACE_CHAT_PORT = '4953'
-AUDIO_CHAT_PORT = 1357
+FACE_CHAT_PORT = '9999'
+AUDIO_CHAT_PORT = 9091
 
 ###############################################################
 # UTILS

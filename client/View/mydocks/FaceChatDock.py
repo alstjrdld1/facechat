@@ -10,8 +10,6 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from View.mydocks.Dock import Dock
-# from View.mydocks.AudioClient import *
-
 
 class SendVideoThread(QThread):
 
@@ -69,14 +67,11 @@ class FaceChatDock(Dock):
             print("FACE CHAT SERVER CONNECTED")
         else:
             print("FACE CHAT SERVER CONNECT FAIL")
-        
-        # self.audio = AudioClient(SERVER_IP, AUDIO_CHAT_PORT)
-                
+                        
         super().__init__()
         self.setupUI()
 
     def __del__(self):
-        # del(self.audio)
         del(self.c)
 
         self.stop()
@@ -87,9 +82,6 @@ class FaceChatDock(Dock):
             self.c.close()
             del(self.c)
             print('Client Stop') 
-            
-        # self.audio.stop()
-        # del(self.audio)
 
     def setupUI(self):
 
@@ -121,9 +113,6 @@ class FaceChatDock(Dock):
 
         self.c.recv.recv_signal.connect(self.update_other_image)
         
-        # self.audio_thread = Thread(target = self.audio.start, args=())
-        # self.audio_thread.start()
-        
         # print("CURRENT VIDEO CHAT DOCK HEIGHT :", self.height())
         # print("CURRENT VIDEO CHAT DOCK WIDTH :", self.width())
 
@@ -133,10 +122,6 @@ class FaceChatDock(Dock):
 
     def closeEvent(self, event):
         self.thread.stop()
-        # self.c.stop()
-        # del(self.audio)
-        # del(self.c)
-        # del(self.audio_thread)
         event.accept()
 
     def caculateDisplaySize(self, number):
@@ -151,14 +136,14 @@ class FaceChatDock(Dock):
             self.display_height = int(self.height() / 4)
 
     def updateVideoUI(self):
-        self.member_num = self.controller.instance().getChatRoomUserNumber() # real version 
-        # self.member_num = 2 # test version 
+        # self.member_num = self.controller.instance().getChatRoomUserNumber() # real version 
+        self.member_num = 12 # test version 
         self.caculateDisplaySize(self.member_num)
         
         for count in range(self.member_num):
-            createFrame = QLabel(str(count))
+            createFrame = QLabel()
             createFrame.resize(self.display_width, self.display_height)
-            print("{} frame width : {}, height : {}".format(count, self.display_width, self.display_height))
+            # print("{} frame width : {}, height : {}".format(count, self.display_width, self.display_height))
             createFrame.setStyleSheet("border: 1px solid black;")
 
             if(int(count/4) == 0):
@@ -191,9 +176,16 @@ class FaceChatDock(Dock):
     @pyqtSlot(np.ndarray)
     def update_other_image(self, cv_img):
         qt_img = self.convert_cv_qt(cv_img)
+        users = self.controller.instance().getChatRoomUserNumber()
+
+        if self.current_user_number != users:
+            self.current_user_number = users
+            self.caculateDisplaySize(self.current_user_number)
+
+        # print("users : ", users)
         global count
         
-        self.frameList[int(count%self.member_num)].setPixmap(qt_img)
+        self.frameList[int(count%users)].setPixmap(qt_img)
 
         count += 1
         if count >= 999 :

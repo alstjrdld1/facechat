@@ -2,6 +2,6 @@ from socket import *
 
 SERVER_IP = gethostbyname(gethostname())
 
-TEXT_CHAT_PORT = 8759
-FACE_CHAT_PORT = 4953
-AUDIO_CHAT_PORT = 1357
+TEXT_CHAT_PORT = 8888
+FACE_CHAT_PORT = 9999
+AUDIO_CHAT_PORT = 9091
